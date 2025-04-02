@@ -96,15 +96,18 @@ LRESULT CALLBACK MainWindow::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 
 void MainWindow::OnCreate(HWND hwnd)
 {
-    if (top_bar) {
+    if (top_bar) 
+    {
         top_bar->CreateMenuBar(hwnd);
     }
     
-    if (text_editor) {
+    if (text_editor) 
+    {
         text_editor->CreateTextEditWindow(hwnd, hInstance);
     }
 
-    if (top_bar && top_bar->file_manager) {
+    if (top_bar && top_bar->file_manager) 
+    {
         top_bar->file_manager->OpenParams(hwnd);
     }
 }

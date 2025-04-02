@@ -5,7 +5,7 @@ void TextEditor::CreateTextEditWindow(HWND hwnd, HINSTANCE hInstance)
     RECT rcClient;
     GetClientRect(hwnd, &rcClient);
 
-    hEditText = CreateWindowA("EDIT", "", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOHSCROLL,
+    hEditText = CreateWindowW(L"EDIT", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOHSCROLL,
         5, 5, rcClient.right - 10, rcClient.bottom - 10, hwnd, NULL, hInstance, NULL);
 
     if (hEditText) 
@@ -28,10 +28,10 @@ WNDPROC TextEditor::oldEditProc = nullptr;
 
 void TextEditor::SubclassEditControl() 
 {
-    oldEditProc = (WNDPROC)SetWindowLongPtr(hEditText, GWLP_WNDPROC, (LONG_PTR)EditProc);
+    oldEditProc = (WNDPROC)SetWindowLongPtrW(hEditText, GWLP_WNDPROC, (LONG_PTR)EditProc);
 }
 
-std::stack<std::string> undoStack;
+std::stack<std::wstring> undoStack;
 
 LRESULT CALLBACK TextEditor::EditProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 {
@@ -41,10 +41,10 @@ LRESULT CALLBACK TextEditor::EditProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         {
             if (!undoStack.empty()) 
             {
-                std::string lastState = undoStack.top();
+                std::wstring lastState = undoStack.top();
                 undoStack.pop();
 
-                SetWindowText(hwnd, lastState.c_str());
+                SetWindowTextW(hwnd, lastState.c_str());
                 return 0;
             }
         }
@@ -55,21 +55,21 @@ LRESULT CALLBACK TextEditor::EditProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
             if (start == end && start > 0) 
             {
-                int textLength = GetWindowTextLength(hwnd) + 1;
-                char* buffer = new char[textLength];
-                GetWindowText(hwnd, buffer, textLength);
+                int textLength = GetWindowTextLengthW(hwnd) + 1;
+                wchar_t* buffer = new wchar_t[textLength];
+                GetWindowTextW(hwnd, buffer, textLength);
 
                 int newPos = start;
-                while (newPos > 0 && buffer[newPos - 1] == ' ') newPos--;
-                while (newPos > 0 && buffer[newPos - 1] != ' ') newPos--;
+                while (newPos > 0 && buffer[newPos - 1] == L' ') newPos--;
+                while (newPos > 0 && buffer[newPos - 1] != L' ') newPos--;
 
-                char* currentText = new char[textLength];
-                GetWindowText(hwnd, currentText, textLength);
-                undoStack.push(std::string(currentText));
+                wchar_t* currentText = new wchar_t[textLength];
+                GetWindowTextW(hwnd, currentText, textLength);
+                undoStack.push(std::wstring(currentText));
                 delete[] currentText;
 
                 SendMessage(hwnd, EM_SETSEL, newPos, start);
-                SendMessage(hwnd, EM_REPLACESEL, FALSE, (LPARAM)"");
+                SendMessage(hwnd, EM_REPLACESEL, FALSE, (LPARAM)L"");
 
                 delete[] buffer;
             }
@@ -81,5 +81,5 @@ LRESULT CALLBACK TextEditor::EditProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
             return 0;
         }
     }
-    return CallWindowProc(oldEditProc, hwnd, msg, wParam, lParam);
+    return CallWindowProcW(oldEditProc, hwnd, msg, wParam, lParam);
 }

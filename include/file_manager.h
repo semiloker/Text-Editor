@@ -13,7 +13,7 @@ public:
     void LoadData(LPCSTR path, HWND hEditText);
     void OpenParams(HWND hwnd);
 
-    char buffer[text_buffer];
+    wchar_t buffer[text_buffer];
     char file_name[150];
     OPENFILENAME ofn;
 };

@@ -1,13 +1,14 @@
 #include "../include/file_manager.h"
+#include <winnt.h>
 
 void FileManager::SaveData(LPCSTR path, HWND hEditText)
 {
     HANDLE FileToSave = CreateFile(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
     int text_lenght = GetWindowTextLength(hEditText) + 1;
-    char* data = new char[text_lenght];
+    wchar_t* data = new wchar_t[text_lenght];
 
-    text_lenght = GetWindowText(hEditText, data, text_lenght);
+    text_lenght = GetWindowTextW(hEditText, data, text_lenght);
     DWORD bytes;
     WriteFile(FileToSave, data, text_lenght, &bytes, NULL);
     CloseHandle(FileToSave);
@@ -22,7 +23,7 @@ void FileManager::LoadData(LPCSTR path, HWND hEditText)
     DWORD bytes;
     ReadFile(FileToLoad, buffer, text_buffer, &bytes, NULL);
 
-    SetWindowText(hEditText, buffer);
+    SetWindowTextW(hEditText, buffer);
 
     CloseHandle(FileToLoad);
 }
