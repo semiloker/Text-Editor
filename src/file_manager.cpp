@@ -1,32 +1,46 @@
 #include "../include/file_manager.h"
-#include <winnt.h>
 
 void FileManager::SaveData(LPCSTR path, HWND hEditText)
 {
     HANDLE FileToSave = CreateFile(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (FileToSave == INVALID_HANDLE_VALUE) return;
 
-    int text_lenght = GetWindowTextLength(hEditText) + 1;
-    wchar_t* data = new wchar_t[text_lenght];
+    int text_length = GetWindowTextLengthW(hEditText) + 1;
+    wchar_t* data = new wchar_t[text_length];
 
-    text_lenght = GetWindowTextW(hEditText, data, text_lenght);
+    text_length = GetWindowTextW(hEditText, data, text_length);
+    
     DWORD bytes;
-    WriteFile(FileToSave, data, text_lenght, &bytes, NULL);
-    CloseHandle(FileToSave);
 
+    WORD bom = 0xFEFF;
+    WriteFile(FileToSave, &bom, sizeof(WORD), &bytes, NULL);
+
+    WriteFile(FileToSave, data, text_length * sizeof(wchar_t), &bytes, NULL);
+
+    CloseHandle(FileToSave);
     delete[] data;
 }
 
 void FileManager::LoadData(LPCSTR path, HWND hEditText)
 {
     HANDLE FileToLoad = CreateFile(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (FileToLoad == INVALID_HANDLE_VALUE) return;
 
     DWORD bytes;
-    ReadFile(FileToLoad, buffer, text_buffer, &bytes, NULL);
-
-    SetWindowTextW(hEditText, buffer);
+    ReadFile(FileToLoad, buffer, text_buffer * sizeof(wchar_t), &bytes, NULL);
+    
+    if (buffer[0] == 0xFEFF)
+    {
+        SetWindowTextW(hEditText, buffer + 1);
+    }
+    else
+    {
+        SetWindowTextW(hEditText, buffer);
+    }
 
     CloseHandle(FileToLoad);
 }
+
 
 void FileManager::OpenParams(HWND hwnd)
 {
