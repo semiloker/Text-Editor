@@ -1,6 +1,6 @@
 TARGET = bin\Text-Editor.exe
 CC = g++
-CFLAGS = -Wall -mwindows
+CFLAGS = -Wall -mwindows -static-libgcc -static-libstdc++
 SRC_DIR = src
 INCLUDE_DIR = include
 OBJ_DIR = obj
